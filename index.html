@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Liverpool FC Crossword (11x11)</title>
+<style>
+:root{--cell:min(9vw,44px);--b:#C8102E;--blk:#8B0C1E;--sel:#F6C343;--hi:rgba(200,16,46,.25)}
+body{font-family:system-ui,Arial,sans-serif;margin:12px;background:#C8102E;color:#fff}
+h2{margin:0 0 8px}
+.grid{display:grid;grid-template-columns:repeat(11,var(--cell));grid-template-rows:repeat(11,var(--cell));border:2px solid var(--b)}
+.cell{border:1px solid var(--b);position:relative;background:#fff}
+.cell.block{background:var(--blk)}
+.cell input{width:100%;height:100%;border:none;outline:none;text-align:center;font-size:18px;text-transform:uppercase;background:transparent}
+.num{position:absolute;top:2px;left:3px;font-size:10px;color:#8B0C1E}
+.cell.selected{box-shadow:inset 0 0 0 3px var(--sel)}
+.cell.inword{background:var(--hi)}
+.wrap{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:800px){.wrap{grid-template-columns:auto 340px}}
+.panel{background:#fff;color:#111;border-radius:10px;padding:10px}
+button{padding:6px 10px;border-radius:8px;border:1px solid #8B0C1E;margin:4px;background:#C8102E;color:#fff}
+.status{font-size:13px;margin-top:6px;color:#fff}
+</style>
+</head>
+<body>
+<h2>❤️ Liverpool FC Crossword (11 × 11)</h2>
+<div class="wrap">
+  <div>
+    <div id="grid" class="grid"></div>
+    <div class="status" id="status"></div>
+  </div>
+  <div class="panel">
+    <div>
+      <button onclick="toggleDir()">Toggle A/D</button>
+      <button onclick="clearGrid()">Clear</button>
+    </div>
+    <h3>Across</h3>
+    <ol id="across"></ol>
+    <h3>Down</h3>
+    <ol id="down"></ol>
+    <p>No mistakes mode is ON ✅</p>
+  </div>
+</div>
+<script>
+const DATA={
+pattern:[
+"..#...#....",
+"....#...#..",
+".#.....#...",
+"...##...#..",
+"..#....#...",
+".....#.....",
+"...#....#..",
+"..#...##...",
+"...#.....#.",
+"..#...#....",
+"....#...#.."
+],
+across:{
+1:"Club on Merseyside",
+5:"Liverpool home ground",
+8:"Famous stand at Anfield",
+10:"Nickname of the team",
+11:"Legendary manager Jürgen",
+13:"Star Egyptian forward",
+15:"Captain before Henderson",
+17:"You'll Never Walk ____",
+19:"European trophy, abbr",
+20:"Derby rivals: Man ___"
+},
+down:{
+1:"City the club represents",
+2:"Liverpool's nickname: The ___",
+3:"Famous anthem word",
+4:"Record league wins under this manager",
+6:"Dutch captain Virgil ___",
+7:"Liverpool’s colour",
+9:"Stadium road: ___ Road",
+12:"Legend Steven ___",
+14:"Current Liverpool manager",
+16:"Six-time European winners, abbr"
+},
+solution:[
+"LI#VER#POOL",
+"ANFI#ELD#FC",
+"R#EDMEN#YOU",
+"WALK##ALONE",
+"MO#SALAH#RB",
+"JURGENKLOPP",
+"GERR#ARD#EPL",
+"##KOP##UCL#",
+"RED#MERSEY#",
+"YOU#NEV#ER#",
+"ALKLO#PP###"
+]
+};
+
+const R=11,C=11;
+let dir="across",active=null,sel=[0,0];
+const nums=[...Array(R)].map(()=>Array(C).fill(0));
+const cells=[],inputs=[],entries=[];
+function isBlock(r,c){return DATA.pattern[r][c]==="#";}
+
+let n=0;
+for(let r=0;r<R;r++){
+ for(let c=0;c<C;c++){
+  if(isBlock(r,c))continue;
+  const sa=(c===0||isBlock(r,c-1))&&(c+1<C&&!isBlock(r,c+1));
+  const sd=(r===0||isBlock(r-1,c))&&(r+1<R&&!isBlock(r+1,c));
+  if(sa||sd)nums[r][c]=++n;
+  if(sa){
+    let cc=c,cs=[];while(cc<C&&!isBlock(r,cc)){cs.push([r,cc]);cc++;}
+    if(cs.length>1)entries.push({n:nums[r][c],dir:"across",cells:cs});
+  }
+  if(sd){
+    let rr=r,cs=[];while(rr<R&&!isBlock(rr,c)){cs.push([rr,c]);rr++;}
+    if(cs.length>1)entries.push({n:nums[r][c],dir:"down",cells:cs});
+  }
+ }
+}
+
+const grid=document.getElementById("grid");
+for(let r=0;r<R;r++){
+ cells[r]=[];inputs[r]=[];
+ for(let c=0;c<C;c++){
+  const d=document.createElement("div");
+  d.className="cell"+(isBlock(r,c)?" block":"");
+  if(!isBlock(r,c)){
+    if(nums[r][c]){
+      const s=document.createElement("span");
+      s.className="num";s.textContent=nums[r][c];
+      d.appendChild(s);
+    }
+    const i=document.createElement("input");
+    i.maxLength=1;
+    i.onfocus=()=>select(r,c,true);
+    i.oninput=()=>{
+      let v=i.value.toUpperCase().replace(/[^A-Z]/g,"");
+      const sol=DATA.solution[r][c];
+      if(v!==sol){ i.value=""; return; }
+      i.value=v; moveNext();
+    };
+    d.appendChild(i);
+    inputs[r][c]=i;
+  }
+  cells[r][c]=d;
+  grid.appendChild(d);
+ }
+}
+
+function entryAt(r,c,d){return entries.find(e=>e.dir===d && e.cells.some(x=>x[0]==r&&x[1]==c));}
+function renderClues(){
+ const a=document.getElementById("across"), d=document.getElementById("down");
+ entries.filter(e=>e.dir==="across").forEach(e=>{
+  const li=document.createElement("li");
+  li.textContent=`${e.n}. ${DATA.across[e.n]||""}`;
+  li.onclick=()=>activate(e); a.appendChild(li);
+ });
+ entries.filter(e=>e.dir==="down").forEach(e=>{
+  const li=document.createElement("li");
+  li.textContent=`${e.n}. ${DATA.down[e.n]||""}`;
+  li.onclick=()=>activate(e); d.appendChild(li);
+ });
+}
+function select(r,c,upd){
+ if(isBlock(r,c))return;
+ sel=[r,c];
+ if(upd) active=entryAt(r,c,dir)||entryAt(r,c,dir==="across"?"down":"across");
+ document.querySelectorAll(".cell").forEach(x=>x.classList.remove("selected","inword"));
+ if(active)active.cells.forEach(([rr,cc])=>cells[rr][cc].classList.add("inword"));
+ cells[r][c].classList.add("selected");
+}
+function activate(e){active=e;dir=e.dir; const [r,c]=e.cells[0]; inputs[r][c].focus(); select(r,c,false);}
+function moveNext(){
+ if(!active)return;
+ const [r,c]=sel; const i=active.cells.findIndex(x=>x[0]==r&&x[1]==c);
+ if(i>=0&&i<active.cells.length-1){
+  const [nr,nc]=active.cells[i+1];
+  inputs[nr][nc].focus();
+ }
+}
+function toggleDir(){dir=dir==="across"?"down":"across";}
+function clearGrid(){inputs.flat().forEach(i=>i&&(i.value=""))}
+renderClues();
+</script>
+</body>
+</html>
