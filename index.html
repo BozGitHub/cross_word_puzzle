@@ -18,29 +18,36 @@ h2{margin:0 0 8px}
 .wrap{display:grid;grid-template-columns:1fr;gap:12px}
 @media(min-width:800px){.wrap{grid-template-columns:auto 340px}}
 .panel{background:#fff;color:#111;border-radius:10px;padding:10px}
-button{padding:6px 10px;border-radius:8px;border:1px solid #8B0C1E;margin:4px;background:#C8102E;color:#fff}
+button{padding:6px 10px;border-radius:8px;border:1px solid #8B0C1E;margin:4px;background:#C8102E;color:#fff;cursor:pointer}
 .status{font-size:13px;margin-top:6px;color:#fff}
 </style>
 </head>
 <body>
+
 <h2>❤️ Liverpool FC Crossword (11 × 11)</h2>
+
 <div class="wrap">
   <div>
     <div id="grid" class="grid"></div>
     <div class="status" id="status"></div>
   </div>
+
   <div class="panel">
     <div>
-      <button onclick="toggleDir()">Toggle A/D</button>
-      <button onclick="clearGrid()">Clear</button>
+      <button id="toggle">Toggle A/D</button>
+      <button id="clear">Clear</button>
     </div>
+
     <h3>Across</h3>
     <ol id="across"></ol>
+
     <h3>Down</h3>
     <ol id="down"></ol>
-    <p>No mistakes mode is ON ✅</p>
+
+    <p><strong>No mistakes mode is ON</strong> ✅</p>
   </div>
 </div>
+
 <script>
 const DATA={
 pattern:[
@@ -56,30 +63,35 @@ pattern:[
 "..#...#....",
 "....#...#.."
 ],
+
 across:{
 1:"Club on Merseyside",
-5:"Liverpool home ground",
-8:"Famous stand at Anfield",
-10:"Nickname of the team",
-11:"Legendary manager Jürgen",
-13:"Star Egyptian forward",
-15:"Captain before Henderson",
-17:"You'll Never Walk ____",
-19:"European trophy, abbr",
-20:"Derby rivals: Man ___"
+4:"Liverpool home ground",
+7:"Famous stand at Anfield",
+9:"Nickname of the team",
+10:"Legendary manager Jürgen",
+12:"Star Egyptian forward",
+14:"Captain before Henderson",
+16:"You'll Never Walk ____",
+18:"European trophy, abbr",
+19:"Derby rivals: Man ___",
+21:"Legend Steven ___",
+22:"Dutch captain Virgil ___"
 },
+
 down:{
 1:"City the club represents",
 2:"Liverpool's nickname: The ___",
 3:"Famous anthem word",
 4:"Record league wins under this manager",
-6:"Dutch captain Virgil ___",
-7:"Liverpool’s colour",
-9:"Stadium road: ___ Road",
-12:"Legend Steven ___",
-14:"Current Liverpool manager",
-16:"Six-time European winners, abbr"
+5:"Current Liverpool manager",
+6:"Liverpool’s colour",
+8:"Stadium road: ___ Road",
+11:"Legend Steven ___",
+13:"Six-time European winners, abbr",
+15:"Anfield stand: The ___"
 },
+
 solution:[
 "LI#VER#POOL",
 "ANFI#ELD#FC",
@@ -99,8 +111,10 @@ const R=11,C=11;
 let dir="across",active=null,sel=[0,0];
 const nums=[...Array(R)].map(()=>Array(C).fill(0));
 const cells=[],inputs=[],entries=[];
+
 function isBlock(r,c){return DATA.pattern[r][c]==="#";}
 
+// Build numbers + entries
 let n=0;
 for(let r=0;r<R;r++){
  for(let c=0;c<C;c++){
@@ -109,16 +123,19 @@ for(let r=0;r<R;r++){
   const sd=(r===0||isBlock(r-1,c))&&(r+1<R&&!isBlock(r+1,c));
   if(sa||sd)nums[r][c]=++n;
   if(sa){
-    let cc=c,cs=[];while(cc<C&&!isBlock(r,cc)){cs.push([r,cc]);cc++;}
+    let cc=c,cs=[];
+    while(cc<C&&!isBlock(r,cc)){cs.push([r,cc]);cc++;}
     if(cs.length>1)entries.push({n:nums[r][c],dir:"across",cells:cs});
   }
   if(sd){
-    let rr=r,cs=[];while(rr<R&&!isBlock(rr,c)){cs.push([rr,c]);rr++;}
+    let rr=r,cs=[];
+    while(rr<R&&!isBlock(rr,c)){cs.push([rr,c]);rr++;}
     if(cs.length>1)entries.push({n:nums[r][c],dir:"down",cells:cs});
   }
  }
 }
 
+// Render grid
 const grid=document.getElementById("grid");
 for(let r=0;r<R;r++){
  cells[r]=[];inputs[r]=[];
@@ -148,20 +165,27 @@ for(let r=0;r<R;r++){
  }
 }
 
+// Helpers
 function entryAt(r,c,d){return entries.find(e=>e.dir===d && e.cells.some(x=>x[0]==r&&x[1]==c));}
+
 function renderClues(){
- const a=document.getElementById("across"), d=document.getElementById("down");
+ const a=document.getElementById("across");
+ const d=document.getElementById("down");
+ a.innerHTML=""; d.innerHTML="";
  entries.filter(e=>e.dir==="across").forEach(e=>{
   const li=document.createElement("li");
-  li.textContent=`${e.n}. ${DATA.across[e.n]||""}`;
-  li.onclick=()=>activate(e); a.appendChild(li);
+  li.textContent=`${e.n}. ${DATA.across[e.n]||"(clue)"} (${e.cells.length})`;
+  li.onclick=()=>activate(e);
+  a.appendChild(li);
  });
  entries.filter(e=>e.dir==="down").forEach(e=>{
   const li=document.createElement("li");
-  li.textContent=`${e.n}. ${DATA.down[e.n]||""}`;
-  li.onclick=()=>activate(e); d.appendChild(li);
+  li.textContent=`${e.n}. ${DATA.down[e.n]||"(clue)"} (${e.cells.length})`;
+  li.onclick=()=>activate(e);
+  d.appendChild(li);
  });
 }
+
 function select(r,c,upd){
  if(isBlock(r,c))return;
  sel=[r,c];
@@ -170,17 +194,30 @@ function select(r,c,upd){
  if(active)active.cells.forEach(([rr,cc])=>cells[rr][cc].classList.add("inword"));
  cells[r][c].classList.add("selected");
 }
-function activate(e){active=e;dir=e.dir; const [r,c]=e.cells[0]; inputs[r][c].focus(); select(r,c,false);}
+
+function activate(e){
+ active=e;dir=e.dir;
+ const [r,c]=e.cells[0];
+ inputs[r][c].focus();
+ select(r,c,false);
+}
+
 function moveNext(){
  if(!active)return;
- const [r,c]=sel; const i=active.cells.findIndex(x=>x[0]==r&&x[1]==c);
+ const [r,c]=sel;
+ const i=active.cells.findIndex(x=>x[0]==r&&x[1]==c);
  if(i>=0&&i<active.cells.length-1){
   const [nr,nc]=active.cells[i+1];
   inputs[nr][nc].focus();
  }
 }
+
 function toggleDir(){dir=dir==="across"?"down":"across";}
-function clearGrid(){inputs.flat().forEach(i=>i&&(i.value=""))}
+function clearGrid(){inputs.flat().forEach(i=>i&&(i.value=""));}
+
+document.getElementById("toggle").onclick=toggleDir;
+document.getElementById("clear").onclick=clearGrid;
+
 renderClues();
 </script>
 </body>
