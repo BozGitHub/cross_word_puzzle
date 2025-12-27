@@ -3,222 +3,669 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Liverpool FC Crossword (11x11)</title>
+<title>Liverpool FC Crossword (13×13) — Auto-generated</title>
 <style>
-:root{--cell:min(9vw,44px);--b:#C8102E;--blk:#8B0C1E;--sel:#F6C343;--hi:rgba(200,16,46,.25)}
-body{font-family:system-ui,Arial,sans-serif;margin:12px;background:#C8102E;color:#fff}
-h2{margin:0 0 8px}
-.grid{display:grid;grid-template-columns:repeat(11,var(--cell));grid-template-rows:repeat(11,var(--cell));border:2px solid var(--b)}
-.cell{border:1px solid var(--b);position:relative;background:#fff}
-.cell.block{background:var(--blk)}
-.cell input{width:100%;height:100%;border:none;outline:none;text-align:center;font-size:18px;text-transform:uppercase;background:transparent}
-.num{position:absolute;top:2px;left:3px;font-size:10px;color:#8B0C1E}
-.cell.selected{box-shadow:inset 0 0 0 3px var(--sel)}
-.cell.inword{background:var(--hi)}
-.wrap{display:grid;grid-template-columns:1fr;gap:12px}
-@media(min-width:800px){.wrap{grid-template-columns:auto 340px}}
-.panel{background:#fff;color:#111;border-radius:10px;padding:10px}
-button{padding:6px 10px;border-radius:8px;border:1px solid #8B0C1E;margin:4px;background:#C8102E;color:#fff;cursor:pointer}
-.status{font-size:13px;margin-top:6px;color:#fff}
+  :root{
+    --cell:min(7.2vw, 42px);
+    --red:#C8102E;
+    --dark:#8B0C1E;
+    --gold:#F6C343;
+    --block:#111;
+    --hi:rgba(246,195,67,.30);
+  }
+  body{
+    margin:12px;
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    background:var(--red);
+    color:#fff;
+  }
+  h1{font-size:18px;margin:0 0 10px}
+  .wrap{display:grid;grid-template-columns:1fr;gap:12px}
+  @media(min-width:1050px){.wrap{grid-template-columns:auto 380px;align-items:start}}
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(13,var(--cell));
+    grid-template-rows:repeat(13,var(--cell));
+    gap:1px;
+    background:var(--dark);
+    border:2px solid var(--dark);
+    width:fit-content;
+  }
+  .cell{
+    background:#fff;
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .cell.block{background:var(--block)}
+  .cell input{
+    width:100%;height:100%;
+    border:none;outline:none;
+    background:transparent;
+    text-align:center;
+    font-size:18px;
+    text-transform:uppercase;
+    padding:0;
+  }
+  .num{
+    position:absolute;
+    top:2px; left:3px;
+    font-size:10px;
+    color:#111;
+    pointer-events:none;
+  }
+  .cell.selected{box-shadow:inset 0 0 0 3px var(--gold)}
+  .cell.inword{background:var(--hi)}
+
+  .panel{
+    background:#fff;
+    color:#111;
+    border-radius:14px;
+    padding:12px;
+  }
+  .controls{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+  button{
+    padding:9px 10px;
+    border-radius:12px;
+    border:1px solid #ddd;
+    background:var(--red);
+    color:#fff;
+    cursor:pointer;
+  }
+  button.secondary{background:#fff;color:#111}
+  button:active{transform:translateY(1px)}
+  .status{font-size:13px;margin-top:8px;color:#fff;line-height:1.35}
+  .mini{font-size:12px;color:#333;line-height:1.35}
+  .clues h3{margin:10px 0 6px}
+  ol{margin:0 0 10px 18px;padding:0}
+  li{margin:4px 0;cursor:pointer}
+  li.active{background:var(--hi);border-radius:10px;padding:2px 6px}
+  .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .badge{background:#fff;color:#111;border-radius:999px;padding:6px 10px;border:1px solid #ddd;font-size:12px}
+  .unplaced{background:#fff;color:#111;border-radius:14px;padding:12px}
+  .unplaced ul{margin:6px 0 0 18px}
+  code{background:#f3f3f3;padding:1px 5px;border-radius:6px}
 </style>
 </head>
 <body>
-
-<h2>❤️ Liverpool FC Crossword (11 × 11)</h2>
+<h1>❤️ Liverpool FC Crossword (13×13) — Auto-generated</h1>
 
 <div class="wrap">
   <div>
-    <div id="grid" class="grid"></div>
-    <div class="status" id="status"></div>
-  </div>
-
-  <div class="panel">
-    <div>
-      <button id="toggle">Toggle A/D</button>
+    <div class="controls">
+      <button id="regen">Regenerate layout</button>
+      <button id="toggleDir">Toggle Across/Down</button>
       <button id="clear">Clear</button>
+      <button id="checkWord">Check word</button>
+      <button id="revealWord">Reveal word</button>
+      <button id="checkAll">Check all</button>
+      <button id="revealAll">Reveal all</button>
+      <button id="mistakes" class="secondary">No-mistakes: OFF</button>
     </div>
 
-    <h3>Across</h3>
-    <ol id="across"></ol>
+    <div id="grid" class="grid" aria-label="Crossword grid"></div>
+    <div class="status" id="playStatus"></div>
 
-    <h3>Down</h3>
-    <ol id="down"></ol>
+    <div class="badges">
+      <div class="badge">Tip: press <b>Space</b> to toggle Across/Down</div>
+      <div class="badge">Arrow keys move • Backspace goes back</div>
+    </div>
+  </div>
 
-    <p><strong>No mistakes mode is ON</strong> ✅</p>
+  <div>
+    <div class="panel clues">
+      <div class="mini">
+        Grid is generated from your clue set. Click a clue to jump.
+        If some entries can’t fit in 13×13, they will appear in “Unplaced”.
+      </div>
+
+      <h3>Across</h3>
+      <ol id="across"></ol>
+
+      <h3>Down</h3>
+      <ol id="down"></ol>
+    </div>
+
+    <div class="unplaced" id="unplacedBox" style="margin-top:12px; display:none;">
+      <b>Unplaced entries (didn’t fit this layout)</b>
+      <div class="mini">Click “Regenerate layout” to try another arrangement.</div>
+      <ul id="unplaced"></ul>
+    </div>
   </div>
 </div>
 
 <script>
-const DATA={
-pattern:[
-"..#...#....",
-"....#...#..",
-".#.....#...",
-"...##...#..",
-"..#....#...",
-".....#.....",
-"...#....#..",
-"..#...##...",
-"...#.....#.",
-"..#...#....",
-"....#...#.."
-],
+/** =========================================================
+ *  0) Your clue+answer list (corrected to fit 13×13)
+ *  ========================================================= */
+const WORDS = [
+  {clue:"In what year was Liverpool FC founded? (4)", answer:"1892"},
+  {clue:"What is the nickname of Liverpool FC? (REDS) (4)", answer:"REDS"},
+  {clue:"What is the name of Liverpool's home stadium? (7)", answer:"ANFIELD"},
+  {clue:"Which manager led Liverpool to their first European Cup win in 1977? (7)", answer:"PAISLEY"},
+  {clue:"What is the club's famous anthem (short form)? (4)", answer:"YNWA"},
+  {clue:"How many European Cups/Champions League titles have Liverpool won in total? (3)", answer:"SIX"},
+  {clue:"Who is Liverpool's all-time record goalscorer? (7)", answer:"IANRUSH"},
+  {clue:"Which player wore the number 8 jersey before Steven Gerrard? (11)", answer:"EMILEHESKEY"},
+  {clue:"Which defender scored for Liverpool in the 2012 League Cup final? (12)", answer:"MARTINSKRTEL"},
+  {clue:"Who was the opponent when Adrian made his first full start for the Reds? (11)", answer:"SOUTHAMPTON"},
+  {clue:"Which team did Liverpool beat in the 2001 UEFA Cup final? (6)", answer:"ALAVES"},
+  {clue:"Who was the last player to miss a penalty for Liverpool vs Red Star Belgrade? (4)", answer:"MANE"},
+  {clue:"Which manager has a brown belt in judo? (8)", answer:"PHILBABB"},
+  {clue:"Which team did Liverpool sign Paul Walsh from? (5)", answer:"LUTON"},
+  {clue:"Against which team did Steven Gerrard score his final goal in a Liverpool shirt? (13)", answer:"CRYSTALPALACE"},
+  {clue:"Who provided the assist for Dirk Kuyt's winner vs Manchester United? (10)", answer:"ANDYCARROLL"},
+  {clue:"Who became the most expensive teenager in British football history when he moved to Liverpool in 1995? (12)", answer:"STANCOLLYMORE"},
+  {clue:"Which side are the only team Liverpool have scored seven against in one Premier League game? (11)", answer:"BOURNEMOUTH"},
+  {clue:"Which player got a hat-trick of assists during a 5-0 victory over Watford in Feb 2019? (5)", answer:"TRENT"},
+  {clue:"Who was Jurgen Klopp's most-used player at Liverpool? (11, shortened) (11)", answer:"TRENTARNOLD"},
+  {clue:"Who scored the Reds' first goal of the new decade in 2010? (surname) (7)", answer:"GERRARD"},
+  {clue:"Which former Liverpool captain was nicknamed the Vitch or Dusty? (surname) (9)", answer:"LAWERENSON"},
+  {clue:"Against which team did Sadio Mane score his first goal for the Reds? (7)", answer:"ARSENAL"},
+  {clue:"Who scored the winning penalty in the FA Youth Cup final vs Man City? (surname) (7)", answer:"GLATZEL"},
+  {clue:"What was the name of the research ship built at Cammell Laird? (11)", answer:"ATTENBOROUGH"},
+  {clue:"How many professional football clubs are there in the Liverpool City Region? (3)", answer:"TWO"},
+].map(x => ({...x, answer: x.answer.toUpperCase().replace(/[^A-Z0-9]/g,"")}));
 
-across:{
-1:"Club on Merseyside",
-4:"Liverpool home ground",
-7:"Famous stand at Anfield",
-9:"Nickname of the team",
-10:"Legendary manager Jürgen",
-12:"Star Egyptian forward",
-14:"Captain before Henderson",
-16:"You'll Never Walk ____",
-18:"European trophy, abbr",
-19:"Derby rivals: Man ___",
-21:"Legend Steven ___",
-22:"Dutch captain Virgil ___"
-},
+/** =========================================================
+ *  1) Crossword generator (randomized greedy; lots of retries)
+ *  ========================================================= */
+const SIZE = 13;
+const MAX_TRIES = 20000;   // increase if you want it to try even harder
 
-down:{
-1:"City the club represents",
-2:"Liverpool's nickname: The ___",
-3:"Famous anthem word",
-4:"Record league wins under this manager",
-5:"Current Liverpool manager",
-6:"Liverpool’s colour",
-8:"Stadium road: ___ Road",
-11:"Legend Steven ___",
-13:"Six-time European winners, abbr",
-15:"Anfield stand: The ___"
-},
+function emptyGrid(){
+  return Array.from({length:SIZE}, ()=>Array.from({length:SIZE}, ()=>""));
+}
+function cloneGrid(g){ return g.map(r=>r.slice()); }
+function inB(r,c){ return r>=0 && r<SIZE && c>=0 && c<SIZE; }
 
-solution:[
-"LI#VER#POOL",
-"ANFI#ELD#FC",
-"R#EDMEN#YOU",
-"WALK##ALONE",
-"MO#SALAH#RB",
-"JURGENKLOPP",
-"GERR#ARD#EPL",
-"##KOP##UCL#",
-"RED#MERSEY#",
-"YOU#NEV#ER#",
-"ALKLO#PP###"
-]
+function canPlace(grid, word, r, c, dir){
+  const dr = (dir==="D") ? 1 : 0;
+  const dc = (dir==="A") ? 1 : 0;
+  const L = word.length;
+
+  const endR = r + dr*(L-1);
+  const endC = c + dc*(L-1);
+  if(!inB(endR,endC)) return false;
+
+  // must not attach directly before/after
+  const br = r - dr, bc = c - dc;
+  const ar = r + dr*L, ac = c + dc*L;
+  if(inB(br,bc) && grid[br][bc] !== "") return false;
+  if(inB(ar,ac) && grid[ar][ac] !== "") return false;
+
+  for(let i=0;i<L;i++){
+    const rr=r+dr*i, cc=c+dc*i;
+    const ex = grid[rr][cc];
+    if(ex !== "" && ex !== word[i]) return false;
+  }
+  return true;
+}
+
+function placeWord(grid, word, r, c, dir){
+  const g = cloneGrid(grid);
+  const dr = (dir==="D") ? 1 : 0;
+  const dc = (dir==="A") ? 1 : 0;
+  for(let i=0;i<word.length;i++){
+    g[r+dr*i][c+dc*i] = word[i];
+  }
+  return g;
+}
+
+function crossScore(grid, word, r, c, dir){
+  const dr = (dir==="D") ? 1 : 0;
+  const dc = (dir==="A") ? 1 : 0;
+  let s=0;
+  for(let i=0;i<word.length;i++){
+    const rr=r+dr*i, cc=c+dc*i;
+    if(grid[rr][cc] === word[i] && grid[rr][cc] !== "") s++;
+  }
+  return s;
+}
+
+function allPlacements(grid, word){
+  const opts=[];
+  for(const dir of ["A","D"]){
+    for(let r=0;r<SIZE;r++){
+      for(let c=0;c<SIZE;c++){
+        if(!canPlace(grid, word, r, c, dir)) continue;
+        opts.push({r,c,dir,score:crossScore(grid,word,r,c,dir)});
+      }
+    }
+  }
+  opts.sort((a,b)=>b.score-a.score);
+  return opts;
+}
+
+function countLetters(grid){
+  let n=0;
+  for(const row of grid) for(const ch of row) if(ch!=="") n++;
+  return n;
+}
+
+function buildCrossword(){
+  const base = WORDS.slice().sort((a,b)=>b.answer.length-a.answer.length);
+  let best=null;
+
+  for(let t=0;t<MAX_TRIES;t++){
+    // randomized order but keep long-first tendency
+    const list = base.slice().sort(()=>Math.random()-0.5).sort((a,b)=>b.answer.length-a.answer.length);
+
+    let grid = emptyGrid();
+    const placed = [];
+
+    // seed: place longest centered across
+    const first = list[0];
+    const sr = Math.floor(SIZE/2);
+    const sc = Math.floor((SIZE - first.answer.length)/2);
+    if(!canPlace(grid, first.answer, sr, sc, "A")) continue;
+    grid = placeWord(grid, first.answer, sr, sc, "A");
+    placed.push({...first, r:sr, c:sc, dir:"A"});
+
+    for(const item of list.slice(1)){
+      const opts = allPlacements(grid, item.answer);
+      if(opts.length === 0) continue;
+
+      // prefer crossings once we have a couple words down
+      let pick = null;
+      const needCross = placed.length >= 3;
+      for(const o of opts.slice(0, 250)){
+        if(needCross && o.score === 0) continue;
+        pick = o;
+        break;
+      }
+      if(!pick) pick = opts[0];
+
+      grid = placeWord(grid, item.answer, pick.r, pick.c, pick.dir);
+      placed.push({...item, r:pick.r, c:pick.c, dir:pick.dir});
+    }
+
+    const score = placed.length*2000 + countLetters(grid);
+    if(!best || score > best.score){
+      best = {score, grid, placed};
+      if(placed.length === WORDS.length) break;
+    }
+  }
+  return best;
+}
+
+/** =========================================================
+ *  2) Convert to blocks, numbering, entries, clue lists
+ *  ========================================================= */
+function toBlockGrid(letterGrid){
+  // any empty cell becomes a block
+  return letterGrid.map(row => row.map(ch => ch==="" ? "#" : ch));
+}
+
+function computeNumbering(blockGrid){
+  const nums = Array.from({length:SIZE}, ()=>Array(SIZE).fill(0));
+  let n=0;
+
+  const across=[], down=[];
+  const isBlk=(r,c)=>blockGrid[r][c]==="#";
+
+  for(let r=0;r<SIZE;r++){
+    for(let c=0;c<SIZE;c++){
+      if(isBlk(r,c)) continue;
+      const startA = (c===0 || isBlk(r,c-1)) && (c+1<SIZE && !isBlk(r,c+1));
+      const startD = (r===0 || isBlk(r-1,c)) && (r+1<SIZE && !isBlk(r+1,c));
+      if(startA || startD){ n++; nums[r][c]=n; }
+
+      if(startA){
+        let cc=c, cells=[];
+        while(cc<SIZE && !isBlk(r,cc)){ cells.push([r,cc]); cc++; }
+        across.push({num:nums[r][c], dir:"across", cells});
+      }
+      if(startD){
+        let rr=r, cells=[];
+        while(rr<SIZE && !isBlk(rr,c)){ cells.push([rr,c]); rr++; }
+        down.push({num:nums[r][c], dir:"down", cells});
+      }
+    }
+  }
+  return {nums, across, down};
+}
+
+function lettersAt(blockGrid, cells){
+  return cells.map(([r,c])=>blockGrid[r][c]).join("");
+}
+
+/** =========================================================
+ *  3) Player UI
+ *  ========================================================= */
+const gridEl = document.getElementById("grid");
+const acrossEl = document.getElementById("across");
+const downEl = document.getElementById("down");
+const playStatus = document.getElementById("playStatus");
+
+let noMistakes = false;
+let direction = "across";
+let activeEntry = null;
+let selected = [0,0];
+
+let current = {
+  blockGrid: null,
+  nums: null,
+  across: [],
+  down: [],
+  clueMapAcross: new Map(),
+  clueMapDown: new Map()
 };
 
-const R=11,C=11;
-let dir="across",active=null,sel=[0,0];
-const nums=[...Array(R)].map(()=>Array(C).fill(0));
-const cells=[],inputs=[],entries=[];
+const cellEls = Array.from({length:SIZE}, ()=>Array(SIZE).fill(null));
+const inputs  = Array.from({length:SIZE}, ()=>Array(SIZE).fill(null));
 
-function isBlock(r,c){return DATA.pattern[r][c]==="#";}
-
-// Build numbers + entries
-let n=0;
-for(let r=0;r<R;r++){
- for(let c=0;c<C;c++){
-  if(isBlock(r,c))continue;
-  const sa=(c===0||isBlock(r,c-1))&&(c+1<C&&!isBlock(r,c+1));
-  const sd=(r===0||isBlock(r-1,c))&&(r+1<R&&!isBlock(r+1,c));
-  if(sa||sd)nums[r][c]=++n;
-  if(sa){
-    let cc=c,cs=[];
-    while(cc<C&&!isBlock(r,cc)){cs.push([r,cc]);cc++;}
-    if(cs.length>1)entries.push({n:nums[r][c],dir:"across",cells:cs});
+function clearHighlights(){
+  for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++){
+    const el = cellEls[r][c];
+    if(el) el.classList.remove("selected","inword");
   }
-  if(sd){
-    let rr=r,cs=[];
-    while(rr<R&&!isBlock(rr,c)){cs.push([rr,c]);rr++;}
-    if(cs.length>1)entries.push({n:nums[r][c],dir:"down",cells:cs});
+  document.querySelectorAll("li.active").forEach(li=>li.classList.remove("active"));
+}
+
+function highlightEntry(e){
+  for(const [r,c] of e.cells) cellEls[r][c].classList.add("inword");
+  const li = document.getElementById(`clue-${e.dir}-${e.num}`);
+  if(li) li.classList.add("active");
+}
+
+function isBlock(r,c){ return current.blockGrid[r][c] === "#"; }
+
+function entryAtCell(r,c,dir){
+  const list = (dir==="across") ? current.across : current.down;
+  for(const e of list){
+    for(const [rr,cc] of e.cells) if(rr===r && cc===c) return e;
   }
- }
+  return null;
 }
 
-// Render grid
-const grid=document.getElementById("grid");
-for(let r=0;r<R;r++){
- cells[r]=[];inputs[r]=[];
- for(let c=0;c<C;c++){
-  const d=document.createElement("div");
-  d.className="cell"+(isBlock(r,c)?" block":"");
-  if(!isBlock(r,c)){
-    if(nums[r][c]){
-      const s=document.createElement("span");
-      s.className="num";s.textContent=nums[r][c];
-      d.appendChild(s);
-    }
-    const i=document.createElement("input");
-    i.maxLength=1;
-    i.onfocus=()=>select(r,c,true);
-    i.oninput=()=>{
-      let v=i.value.toUpperCase().replace(/[^A-Z]/g,"");
-      const sol=DATA.solution[r][c];
-      if(v!==sol){ i.value=""; return; }
-      i.value=v; moveNext();
-    };
-    d.appendChild(i);
-    inputs[r][c]=i;
+function selectCell(r,c,updateEntry){
+  if(isBlock(r,c)) return;
+  selected=[r,c];
+
+  if(updateEntry){
+    activeEntry = entryAtCell(r,c,direction) || entryAtCell(r,c, direction==="across" ? "down":"across");
+    if(activeEntry) direction = activeEntry.dir;
   }
-  cells[r][c]=d;
-  grid.appendChild(d);
- }
+
+  clearHighlights();
+  if(activeEntry) highlightEntry(activeEntry);
+  cellEls[r][c].classList.add("selected");
+
+  if(activeEntry){
+    const clue = (activeEntry.dir==="across")
+      ? (current.clueMapAcross.get(activeEntry.num)||"")
+      : (current.clueMapDown.get(activeEntry.num)||"");
+    playStatus.textContent = `${activeEntry.num} ${activeEntry.dir.toUpperCase()} — ${clue}`;
+  }else{
+    playStatus.textContent = "";
+  }
 }
 
-// Helpers
-function entryAt(r,c,d){return entries.find(e=>e.dir===d && e.cells.some(x=>x[0]==r&&x[1]==c));}
-
-function renderClues(){
- const a=document.getElementById("across");
- const d=document.getElementById("down");
- a.innerHTML=""; d.innerHTML="";
- entries.filter(e=>e.dir==="across").forEach(e=>{
-  const li=document.createElement("li");
-  li.textContent=`${e.n}. ${DATA.across[e.n]||"(clue)"} (${e.cells.length})`;
-  li.onclick=()=>activate(e);
-  a.appendChild(li);
- });
- entries.filter(e=>e.dir==="down").forEach(e=>{
-  const li=document.createElement("li");
-  li.textContent=`${e.n}. ${DATA.down[e.n]||"(clue)"} (${e.cells.length})`;
-  li.onclick=()=>activate(e);
-  d.appendChild(li);
- });
+function activateEntry(e){
+  activeEntry=e;
+  direction=e.dir;
+  const [r,c]=e.cells[0];
+  inputs[r][c].focus();
+  selectCell(r,c,false);
 }
 
-function select(r,c,upd){
- if(isBlock(r,c))return;
- sel=[r,c];
- if(upd) active=entryAt(r,c,dir)||entryAt(r,c,dir==="across"?"down":"across");
- document.querySelectorAll(".cell").forEach(x=>x.classList.remove("selected","inword"));
- if(active)active.cells.forEach(([rr,cc])=>cells[rr][cc].classList.add("inword"));
- cells[r][c].classList.add("selected");
-}
-
-function activate(e){
- active=e;dir=e.dir;
- const [r,c]=e.cells[0];
- inputs[r][c].focus();
- select(r,c,false);
+function toggleDirection(){
+  direction = (direction==="across") ? "down" : "across";
+  const [r,c]=selected;
+  const e = entryAtCell(r,c,direction);
+  if(e) activeEntry=e;
+  selectCell(r,c,false);
 }
 
 function moveNext(){
- if(!active)return;
- const [r,c]=sel;
- const i=active.cells.findIndex(x=>x[0]==r&&x[1]==c);
- if(i>=0&&i<active.cells.length-1){
-  const [nr,nc]=active.cells[i+1];
-  inputs[nr][nc].focus();
- }
+  if(!activeEntry) return;
+  const [r,c]=selected;
+  const idx = activeEntry.cells.findIndex(([rr,cc])=>rr===r && cc===c);
+  if(idx>=0 && idx < activeEntry.cells.length-1){
+    const [nr,nc] = activeEntry.cells[idx+1];
+    inputs[nr][nc].focus();
+  }
+}
+function movePrev(){
+  if(!activeEntry) return;
+  const [r,c]=selected;
+  const idx = activeEntry.cells.findIndex(([rr,cc])=>rr===r && cc===c);
+  if(idx>0){
+    const [pr,pc] = activeEntry.cells[idx-1];
+    inputs[pr][pc].focus();
+  }
+}
+function onKey(ev,r,c){
+  if(ev.key===" "){ ev.preventDefault(); toggleDirection(); return; }
+  if(ev.key==="ArrowRight"){ ev.preventDefault(); if(c+1<SIZE && !isBlock(r,c+1)) inputs[r][c+1].focus(); return; }
+  if(ev.key==="ArrowLeft"){ ev.preventDefault(); if(c-1>=0 && !isBlock(r,c-1)) inputs[r][c-1].focus(); return; }
+  if(ev.key==="ArrowDown"){ ev.preventDefault(); if(r+1<SIZE && !isBlock(r+1,c)) inputs[r+1][c].focus(); return; }
+  if(ev.key==="ArrowUp"){ ev.preventDefault(); if(r-1>=0 && !isBlock(r-1,c)) inputs[r-1][c].focus(); return; }
+  if(ev.key==="Backspace"){
+    if((inputs[r][c].value||"")===""){ ev.preventDefault(); movePrev(); }
+  }
 }
 
-function toggleDir(){dir=dir==="across"?"down":"across";}
-function clearGrid(){inputs.flat().forEach(i=>i&&(i.value=""));}
+function clearFill(){
+  for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++){
+    if(isBlock(r,c)) continue;
+    inputs[r][c].value="";
+  }
+  playStatus.textContent="Cleared.";
+}
 
-document.getElementById("toggle").onclick=toggleDir;
-document.getElementById("clear").onclick=clearGrid;
+function checkWord(){
+  if(!activeEntry) return;
+  let wrong=0, filled=0;
+  for(const [r,c] of activeEntry.cells){
+    const v=(inputs[r][c].value||"").toUpperCase();
+    const sol=current.blockGrid[r][c];
+    if(v) filled++;
+    if(v && v!==sol) wrong++;
+  }
+  playStatus.textContent = wrong ? `${wrong} wrong letters in this word.` : `Word OK so far (${filled}/${activeEntry.cells.length}).`;
+}
+function revealWord(){
+  if(!activeEntry) return;
+  for(const [r,c] of activeEntry.cells){
+    inputs[r][c].value = current.blockGrid[r][c];
+  }
+  playStatus.textContent="Word revealed.";
+}
+function checkAll(){
+  let wrong=0, filled=0, total=0;
+  for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++){
+    if(isBlock(r,c)) continue;
+    total++;
+    const v=(inputs[r][c].value||"").toUpperCase();
+    const sol=current.blockGrid[r][c];
+    if(v) filled++;
+    if(v && v!==sol) wrong++;
+  }
+  playStatus.textContent = wrong ? `${wrong} wrong letters (filled ${filled}/${total}).` : `All correct so far (filled ${filled}/${total}).`;
+}
+function revealAll(){
+  for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++){
+    if(isBlock(r,c)) continue;
+    inputs[r][c].value = current.blockGrid[r][c];
+  }
+  playStatus.textContent="All revealed.";
+}
 
-renderClues();
+/** =========================================================
+ *  4) Render everything from a generated crossword
+ *  ========================================================= */
+function renderGrid(){
+  gridEl.innerHTML="";
+  for(let r=0;r<SIZE;r++){
+    for(let c=0;c<SIZE;c++){
+      const cell=document.createElement("div");
+      cell.className = "cell" + (isBlock(r,c) ? " block" : "");
+      cellEls[r][c]=cell;
+
+      if(!isBlock(r,c)){
+        const n=current.nums[r][c];
+        if(n){
+          const s=document.createElement("div");
+          s.className="num";
+          s.textContent=n;
+          cell.appendChild(s);
+        }
+        const inp=document.createElement("input");
+        inp.maxLength=1;
+        inp.autocomplete="off";
+        inp.spellcheck=false;
+
+        inp.addEventListener("focus", ()=>selectCell(r,c,true));
+        inp.addEventListener("keydown",(ev)=>onKey(ev,r,c));
+        inp.addEventListener("input", ()=>{
+          let v=(inp.value||"").toUpperCase().replace(/[^A-Z0-9]/g,"");
+          if(noMistakes){
+            const sol=current.blockGrid[r][c];
+            if(v && v!==sol){ inp.value=""; return; }
+          }
+          inp.value=v;
+          moveNext();
+        });
+
+        inputs[r][c]=inp;
+        cell.addEventListener("pointerdown", ()=>inp.focus());
+        cell.appendChild(inp);
+      }
+
+      gridEl.appendChild(cell);
+    }
+  }
+
+  // focus first open
+  outer: for(let r=0;r<SIZE;r++){
+    for(let c=0;c<SIZE;c++){
+      if(!isBlock(r,c)){
+        activeEntry = entryAtCell(r,c,"across") || entryAtCell(r,c,"down");
+        direction = activeEntry ? activeEntry.dir : "across";
+        inputs[r][c].focus();
+        selectCell(r,c,false);
+        break outer;
+      }
+    }
+  }
+}
+
+function renderClues(){
+  acrossEl.innerHTML="";
+  downEl.innerHTML="";
+
+  const a = current.across.slice().sort((x,y)=>x.num-y.num);
+  const d = current.down.slice().sort((x,y)=>x.num-y.num);
+
+  for(const e of a){
+    const li=document.createElement("li");
+    li.id=`clue-across-${e.num}`;
+    li.innerHTML=`<strong>${e.num}</strong>. ${current.clueMapAcross.get(e.num) || "—"} <em>(${e.cells.length})</em>`;
+    li.addEventListener("click", ()=>activateEntry(e));
+    acrossEl.appendChild(li);
+  }
+  for(const e of d){
+    const li=document.createElement("li");
+    li.id=`clue-down-${e.num}`;
+    li.innerHTML=`<strong>${e.num}</strong>. ${current.clueMapDown.get(e.num) || "—"} <em>(${e.cells.length})</em>`;
+    li.addEventListener("click", ()=>activateEntry(e));
+    downEl.appendChild(li);
+  }
+}
+
+function renderUnplaced(unplaced){
+  const box=document.getElementById("unplacedBox");
+  const ul=document.getElementById("unplaced");
+  ul.innerHTML="";
+  if(unplaced.length===0){
+    box.style.display="none";
+    return;
+  }
+  for(const it of unplaced){
+    const li=document.createElement("li");
+    li.textContent = `${it.answer} — ${it.clue}`;
+    ul.appendChild(li);
+  }
+  box.style.display="block";
+}
+
+/** =========================================================
+ *  5) Generate + map clues to numbered entries
+ *  ========================================================= */
+function generateAndRender(){
+  playStatus.textContent = "Generating…";
+
+  const best = buildCrossword();
+  if(!best){
+    playStatus.textContent = "Could not generate a grid. Try refreshing.";
+    return;
+  }
+
+  const blockGrid = toBlockGrid(best.grid);
+  const {nums, across, down} = computeNumbering(blockGrid);
+
+  // build quick lookup for clue->answer
+  const clueByAnswer = new Map(WORDS.map(w => [w.answer, w.clue]));
+
+  // prepare clue maps for numbered entries:
+  const clueMapAcross = new Map();
+  const clueMapDown = new Map();
+  for(const e of across) clueMapAcross.set(e.num, "—");
+  for(const e of down) clueMapDown.set(e.num, "—");
+
+  // assign a clue to an entry if its letters equal one of our answers
+  const usedAnswers = new Set();
+
+  for(const e of across){
+    const s = lettersAt(blockGrid, e.cells);
+    if(clueByAnswer.has(s)){
+      clueMapAcross.set(e.num, clueByAnswer.get(s));
+      usedAnswers.add(s);
+    }
+  }
+  for(const e of down){
+    const s = lettersAt(blockGrid, e.cells);
+    if(clueByAnswer.has(s)){
+      clueMapDown.set(e.num, clueByAnswer.get(s));
+      usedAnswers.add(s);
+    }
+  }
+
+  // anything not used/placed?
+  const unplaced = WORDS.filter(w => !usedAnswers.has(w.answer));
+
+  current = {blockGrid, nums, across, down, clueMapAcross, clueMapDown};
+
+  renderGrid();
+  renderClues();
+  renderUnplaced(unplaced);
+
+  playStatus.textContent =
+    `Generated grid with ${best.placed.length}/${WORDS.length} answers placed. ` +
+    (unplaced.length ? `(${unplaced.length} unplaced — see list.)` : "All placed ✅");
+}
+
+/** =========================================================
+ *  6) Wire up buttons
+ *  ========================================================= */
+document.getElementById("regen").addEventListener("click", generateAndRender);
+document.getElementById("toggleDir").addEventListener("click", toggleDirection);
+document.getElementById("clear").addEventListener("click", clearFill);
+document.getElementById("checkWord").addEventListener("click", checkWord);
+document.getElementById("revealWord").addEventListener("click", revealWord);
+document.getElementById("checkAll").addEventListener("click", checkAll);
+document.getElementById("revealAll").addEventListener("click", revealAll);
+document.getElementById("mistakes").addEventListener("click", (e)=>{
+  noMistakes = !noMistakes;
+  e.textContent = `No-mistakes: ${noMistakes ? "ON" : "OFF"}`;
+  e.classList.toggle("secondary", !noMistakes);
+});
+
+generateAndRender();
 </script>
 </body>
 </html>
